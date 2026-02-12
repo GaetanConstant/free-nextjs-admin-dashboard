@@ -1,18 +1,37 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useUser } from "@/context/UserContext";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
+  const { user, updateUser } = useUser();
+  const [formData, setFormData] = useState({
+    full_name: "",
+    email: ""
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || "",
+        email: user.email || ""
+      });
+    }
+  }, [user]);
+
+  const handleSave = async (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
+    if (user) {
+      await updateUser({ ...user, ...formData });
+    }
     closeModal();
   };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -27,7 +46,7 @@ export default function UserInfoCard() {
                 First Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {user?.full_name?.split(' ')[0] || "User"}
               </p>
             </div>
 
@@ -36,7 +55,7 @@ export default function UserInfoCard() {
                 Last Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                {user?.full_name?.split(' ').slice(1).join(' ') || ""}
               </p>
             </div>
 
@@ -45,25 +64,25 @@ export default function UserInfoCard() {
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {user?.email || "user@example.com"}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                Role
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {user?.role === 'admin' ? 'Administrateur' : 'Commercial'}
               </p>
             </div>
 
-            <div>
+            <div className="lg:col-span-2">
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Bio
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                Administrateur de Plouf Prospect CRM. Passionné par l'automatisation et le scraping.
               </p>
             </div>
           </div>
@@ -148,27 +167,27 @@ export default function UserInfoCard() {
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
                     <Label>First Name</Label>
-                    <Input type="text" defaultValue="Musharof" />
+                    <Input type="text" value={formData.full_name.split(' ')[0]} onChange={(e) => setFormData({ ...formData, full_name: `${e.target.value} ${formData.full_name.split(' ').slice(1).join(' ')}` })} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Last Name</Label>
-                    <Input type="text" defaultValue="Chowdhury" />
+                    <Input type="text" value={formData.full_name.split(' ').slice(1).join(' ') || ""} onChange={(e) => setFormData({ ...formData, full_name: `${formData.full_name.split(' ')[0]} ${e.target.value}` })} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" defaultValue="randomuser@pimjo.com" />
+                    <Input type="text" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 363 398 46" />
+                    <Input type="text" defaultValue="+01 23 45 67 89" />
                   </div>
 
                   <div className="col-span-2">
                     <Label>Bio</Label>
-                    <Input type="text" defaultValue="Team Manager" />
+                    <Input type="text" defaultValue="Administrateur Plouf Prospect" />
                   </div>
                 </div>
               </div>
