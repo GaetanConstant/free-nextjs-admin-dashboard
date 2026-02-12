@@ -24,7 +24,7 @@ interface Contact {
     [key: string]: any;
 }
 
-import { authenticatedFetch } from "@/utils/api";
+import { authenticatedFetch, API_BASE_URL } from "@/utils/api";
 
 export default function ProspectTinderPage() {
     const [contact, setContact] = useState<Contact | null>(null);
@@ -37,7 +37,7 @@ export default function ProspectTinderPage() {
         setContact(null);
         setError("");
         try {
-            const response = await authenticatedFetch("http://localhost:8000/crm/prospect-tinder/next");
+            const response = await authenticatedFetch(`${API_BASE_URL}/crm/prospect-tinder/next`);
             if (response.status === 200) {
                 const data = await response.json();
                 setContact(data);
@@ -82,7 +82,7 @@ export default function ProspectTinderPage() {
         }
 
         try {
-            await authenticatedFetch(`http://localhost:8000/crm/contact/${contact.id}`, {
+            await authenticatedFetch(`${API_BASE_URL}/crm/contact/${contact.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updates),

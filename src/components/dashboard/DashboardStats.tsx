@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
-import { authenticatedFetch } from "@/utils/api";
+import { authenticatedFetch, API_BASE_URL } from "@/utils/api";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -22,7 +22,7 @@ export const DashboardStats = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await authenticatedFetch("http://localhost:8000/crm/stats");
+                const response = await authenticatedFetch(`${API_BASE_URL}/crm/stats`);
                 const json = await response.json();
                 setData(json);
             } catch (error) {

@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
-import { authenticatedFetch } from "@/utils/api";
+import { authenticatedFetch, API_BASE_URL } from "@/utils/api";
 import ContactModal from "../modal/ContactModal";
 
 interface Contact {
@@ -65,7 +65,7 @@ export default function ContactsTable() {
         // Fetch dropdow lists (origins and commercials)
         const fetchFilters = async () => {
             try {
-                const response = await authenticatedFetch("http://localhost:8000/crm/stats");
+                const response = await authenticatedFetch(`${API_BASE_URL}/crm/stats`);
                 const data = await response.json();
                 if (data.byOrigine) {
                     setOriginsList(Object.keys(data.byOrigine).filter(o => o !== "Non défini"));
@@ -94,7 +94,7 @@ export default function ContactsTable() {
             if (origin !== "all") params.append("origin", origin);
             if (commercial !== "all") params.append("commercial", commercial);
 
-            const response = await authenticatedFetch(`http://localhost:8000/crm/contacts?${params.toString()}`);
+            const response = await authenticatedFetch(`${API_BASE_URL}/crm/contacts?${params.toString()}`);
             const data = await response.json();
             setContacts(data.contacts);
             setTotalPages(data.totalPages);

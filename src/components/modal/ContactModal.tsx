@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { authenticatedFetch } from "@/utils/api";
+import { authenticatedFetch, API_BASE_URL } from "@/utils/api";
 
 interface Contact {
     id: number;
@@ -49,7 +49,7 @@ export default function ContactModal({ contact, isOpen, onClose, onUpdate }: Con
         const payload = { ...rest, Email: combinedEmail };
 
         try {
-            const response = await authenticatedFetch(`http://localhost:8000/crm/contact/${formData.id}`, {
+            const response = await authenticatedFetch(`${API_BASE_URL}/crm/contact/${formData.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

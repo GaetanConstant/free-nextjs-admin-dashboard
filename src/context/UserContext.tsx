@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { API_BASE_URL } from "@/utils/api";
 
 interface User {
     username: string;
@@ -40,7 +41,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
-            const response = await fetch("http://localhost:8000/users/me", {
+            const response = await fetch(`${API_BASE_URL}/users/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (response.ok) {
@@ -62,7 +63,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             formData.append('username', username);
             formData.append('password', password);
 
-            const response = await fetch("http://localhost:8000/token", {
+            const response = await fetch(`${API_BASE_URL}/token`, {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: formData,
@@ -97,7 +98,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const updateUser = async (userData: User) => {
         try {
-            const response = await fetch("http://localhost:8000/users/me", {
+            const response = await fetch(`${API_BASE_URL}/users/me`, {
                 method: "PUT",
                 headers: {
                     ...getAuthHeader(),
@@ -123,7 +124,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (!token) return { success: false, message: "Non authentifié" };
 
         try {
-            const response = await fetch("http://localhost:8000/users/me/change-password", {
+            const response = await fetch(`${API_BASE_URL}/users/me/change-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

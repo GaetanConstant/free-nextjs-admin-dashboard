@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Badge from "../ui/badge/Badge";
 import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon, CalenderIcon, ListIcon } from "@/icons";
-import { authenticatedFetch } from "@/utils/api";
+import { authenticatedFetch, API_BASE_URL } from "@/utils/api";
 
 type MetricsData = {
     totalContacts: number;
@@ -18,7 +18,7 @@ export const DashboardMetrics = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await authenticatedFetch("http://localhost:8000/crm/home_metrics");
+                const response = await authenticatedFetch(`${API_BASE_URL}/crm/home_metrics`);
                 const json = await response.json();
                 setData(json);
             } catch (error) {
