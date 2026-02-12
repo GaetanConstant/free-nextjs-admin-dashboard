@@ -34,6 +34,7 @@ export default function UserDropdown() {
             src={user?.avatar_url || "/images/user/owner.jpg"}
             alt="User"
             className="object-cover h-full w-full"
+            unoptimized
           />
         </span>
 
