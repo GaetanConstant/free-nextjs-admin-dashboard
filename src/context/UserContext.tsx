@@ -73,7 +73,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 const data = await response.json();
                 const expires = new Date();
                 expires.setDate(expires.getDate() + 7);
-                document.cookie = `auth_token=${data.access_token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict`;
+                document.cookie = `auth_token=${data.access_token}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
                 await fetchUser();
                 return true;
             }

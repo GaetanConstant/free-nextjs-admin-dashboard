@@ -10,6 +10,7 @@ export default function SidebarWidget() {
         width={90}
         height={90}
         className="w-auto h-auto max-w-[90px]"
+        unoptimized
       />
     </div>
   );

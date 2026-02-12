@@ -28,6 +28,7 @@ export default function AuthLayout({
                     src="/images/logo/SCOPA-LOGO-R.png"
                     alt="Logo SCOPA"
                     className="w-full h-auto max-w-[400px]"
+                    unoptimized
                   />
                 </Link>
                 <p className="text-center text-gray-400 dark:text-white/60">
