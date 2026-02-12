@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   /* config options here */
+  images: {
+    unoptimized: true,
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
