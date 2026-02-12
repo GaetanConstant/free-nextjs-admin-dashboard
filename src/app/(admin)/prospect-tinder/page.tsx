@@ -24,6 +24,8 @@ interface Contact {
     [key: string]: any;
 }
 
+import { authenticatedFetch } from "@/utils/api";
+
 export default function ProspectTinderPage() {
     const [contact, setContact] = useState<Contact | null>(null);
     const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ export default function ProspectTinderPage() {
         setContact(null);
         setError("");
         try {
-            const response = await fetch("http://localhost:8000/crm/prospect-tinder/next");
+            const response = await authenticatedFetch("http://localhost:8000/crm/prospect-tinder/next");
             if (response.status === 200) {
                 const data = await response.json();
                 setContact(data);
@@ -44,6 +46,7 @@ export default function ProspectTinderPage() {
             }
         } catch (err) {
             setError("Erreur lors du chargement du prospect.");
+            console.error("Error fetching prospect:", err);
         } finally {
             setLoading(false);
         }
@@ -63,23 +66,27 @@ export default function ProspectTinderPage() {
         if (!contact) return;
         setIsSaving(true);
 
-        const updates: any = { ...contact }; // Start with current edited state
+        const updates: any = { ...contact };
 
         if (action === "contacted") {
             updates.Statut = "Contacté";
-            updates.date_dernier_contact = new Date().toISOString().split("T")[0];
+            const today = new Date();
+            updates.date_dernier_contact = today.toISOString().split("T")[0];
+
+            // Relance automatique à J+7
+            const relanceDate = new Date();
+            relanceDate.setDate(today.getDate() + 7);
+            updates.date_relance = relanceDate.toISOString().split("T")[0];
         } else if (action === "not_interested") {
             updates.Statut = "Pas intéressé";
         }
-        // If skip, we just save the edits (if any) without changing status
 
         try {
-            await fetch(`http://localhost:8000/crm/contact/${contact.id}`, {
+            await authenticatedFetch(`http://localhost:8000/crm/contact/${contact.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updates),
             });
-            // Move to next
             fetchNextProspect();
         } catch (err) {
             console.error("Failed to update contact", err);

@@ -249,6 +249,85 @@ export default function UserMetaCard() {
           </form>
         </div>
       </Modal>
+
+      {/* Password Change Section */}
+      <div className="mt-6 p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-gray-900">
+        <h4 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">
+          Changer le mot de passe
+        </h4>
+        <PasswordChangeForm />
+      </div>
     </>
+  );
+}
+
+function PasswordChangeForm() {
+  const { changePassword } = useUser();
+  const [passwords, setPasswords] = useState({
+    old: "",
+    new: "",
+    confirm: ""
+  });
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(null);
+
+    if (passwords.new !== passwords.confirm) {
+      setStatus({ type: 'error', message: "Les nouveaux mots de passe ne correspondent pas." });
+      return;
+    }
+
+    setLoading(true);
+    const result = await changePassword(passwords.old, passwords.new);
+    if (result.success) {
+      setStatus({ type: 'success', message: result.message });
+      setPasswords({ old: "", new: "", confirm: "" });
+    } else {
+      setStatus({ type: 'error', message: result.message });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+      {status && (
+        <div className={`p-3 rounded-lg text-sm ${status.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          {status.message}
+        </div>
+      )}
+      <div>
+        <Label>Ancien mot de passe</Label>
+        <Input
+          type="password"
+          value={passwords.old}
+          onChange={(e) => setPasswords({ ...passwords, old: e.target.value })}
+          required
+        />
+      </div>
+      <div>
+        <Label>Nouveau mot de passe</Label>
+        <Input
+          type="password"
+          value={passwords.new}
+          onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+          required
+        />
+      </div>
+      <div>
+        <Label>Confirmer le nouveau mot de passe</Label>
+        <Input
+          type="password"
+          value={passwords.confirm}
+          onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+          required
+        />
+      </div>
+      <Button type="submit" disabled={loading}>
+        {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
+      </Button>
+    </form>
   );
 }

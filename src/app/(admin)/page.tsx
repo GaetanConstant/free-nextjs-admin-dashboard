@@ -1,41 +1,23 @@
-import type { Metadata } from "next";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import React from "react";
-import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import RecentOrders from "@/components/ecommerce/RecentOrders";
-import DemographicCard from "@/components/ecommerce/DemographicCard";
+import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "💧 Plouf CRM Prospector",
-  description: "Advanced Agentic CRM Dashboard",
+    title: "Métriques Générales | Plouf CRM",
+    description: "Vue d'ensemble des statistiques de prospection",
 };
 
-export default function Ecommerce() {
-  return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
-        <EcommerceMetrics />
-
-        <MonthlySalesChart />
-      </div>
-
-      <div className="col-span-12 xl:col-span-5">
-        <MonthlyTarget />
-      </div>
-
-      <div className="col-span-12">
-        <StatisticsChart />
-      </div>
-
-      <div className="col-span-12 xl:col-span-5">
-        <DemographicCard />
-      </div>
-
-      <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
-      </div>
-    </div>
-  );
+export default function GeneralMetricsPage() {
+    return (
+        <div>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-title-md2 font-bold text-black dark:text-white">
+                    Métriques Générales
+                </h2>
+            </div>
+            <DashboardMetrics />
+            <DashboardStats />
+        </div>
+    );
 }

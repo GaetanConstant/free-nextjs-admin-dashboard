@@ -30,11 +30,8 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [
-      { name: "Ecommerce", path: "/", pro: false },
-      { name: "Métriques Générales", path: "/general-metrics", pro: false },
-    ],
+    name: "Métriques Générales",
+    path: "/",
   },
   {
     name: "Contacts",
@@ -57,6 +54,11 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/profile",
+  },
+  {
+    icon: <GridIcon />,
+    name: "[Demo] Ecommerce",
+    path: "/ecommerce-demo",
   },
   /*
     {
@@ -329,7 +331,7 @@ const AppSidebar: React.FC = () => {
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex flex-col flex-1 overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
@@ -367,8 +369,8 @@ const AppSidebar: React.FC = () => {
             )}
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
+      {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
     </aside>
   );
 };

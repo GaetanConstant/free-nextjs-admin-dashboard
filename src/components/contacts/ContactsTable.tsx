@@ -8,6 +8,7 @@ import {
     TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { authenticatedFetch } from "@/utils/api";
 import ContactModal from "../modal/ContactModal";
 
 interface Contact {
@@ -36,6 +37,7 @@ export default function ContactsTable() {
     const [origin, setOrigin] = useState("all");
     const [originsList, setOriginsList] = useState<string[]>([]);
     const [commercial, setCommercial] = useState("all");
+    const [commercialsList, setCommercialsList] = useState<string[]>([]);
 
     // Sorting
     const [sortBy, setSortBy] = useState("id");
@@ -60,19 +62,22 @@ export default function ContactsTable() {
     }, [page, debouncedSearch, origin, commercial, sortBy, sortOrder]);
 
     useEffect(() => {
-        // Fetch origins list
-        const fetchOrigins = async () => {
+        // Fetch dropdow lists (origins and commercials)
+        const fetchFilters = async () => {
             try {
-                const response = await fetch("http://localhost:8000/crm/stats");
+                const response = await authenticatedFetch("http://localhost:8000/crm/stats");
                 const data = await response.json();
                 if (data.byOrigine) {
-                    setOriginsList(Object.keys(data.byOrigine));
+                    setOriginsList(Object.keys(data.byOrigine).filter(o => o !== "Non défini"));
+                }
+                if (data.byCommercial) {
+                    setCommercialsList(Object.keys(data.byCommercial).filter(c => c !== "Non défini"));
                 }
             } catch (error) {
-                console.error("Failed to fetch origins", error);
+                console.error("Failed to fetch filter options", error);
             }
         };
-        fetchOrigins();
+        fetchFilters();
     }, []);
 
     const fetchContacts = async () => {
@@ -89,7 +94,7 @@ export default function ContactsTable() {
             if (origin !== "all") params.append("origin", origin);
             if (commercial !== "all") params.append("commercial", commercial);
 
-            const response = await fetch(`http://localhost:8000/crm/contacts?${params.toString()}`);
+            const response = await authenticatedFetch(`http://localhost:8000/crm/contacts?${params.toString()}`);
             const data = await response.json();
             setContacts(data.contacts);
             setTotalPages(data.totalPages);
@@ -119,8 +124,24 @@ export default function ContactsTable() {
         return "light";
     };
 
+    const formatDate = (dateStr: string | null | undefined) => {
+        if (!dateStr || dateStr === "NaT" || dateStr === "None") return "-";
+        return dateStr.split("T")[0];
+    };
+
     const handleRowClick = (contact: Contact) => {
-        setSelectedContact(contact);
+        const cleanContact = { ...contact };
+        // Ensure editable date format (YYYY-MM-DD) for modal
+        if (cleanContact.date_relance && cleanContact.date_relance.includes("T")) {
+            cleanContact.date_relance = cleanContact.date_relance.split("T")[0];
+        }
+        if (cleanContact.date_dernier_contact && cleanContact.date_dernier_contact.includes("T")) {
+            cleanContact.date_dernier_contact = cleanContact.date_dernier_contact.split("T")[0];
+        }
+        if (cleanContact.date_relance === "NaT") cleanContact.date_relance = "";
+        if (cleanContact.date_dernier_contact === "NaT") cleanContact.date_dernier_contact = "";
+
+        setSelectedContact(cleanContact);
         setIsModalOpen(true);
     };
 
@@ -156,8 +177,9 @@ export default function ContactsTable() {
                         onChange={(e) => { setCommercial(e.target.value); setPage(1); }}
                     >
                         <option value="all">Tous commerciaux</option>
-                        <option value="gconstant">Gaetan</option>
-                        <option value="commercial1">Commercial 1</option>
+                        {commercialsList.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                        ))}
                     </select>
                 </div>
             </div>
@@ -196,17 +218,19 @@ export default function ContactsTable() {
                                     <SortableHeader label="Téléphone" column="Phone" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                                     <SortableHeader label="Statut" column="Statut" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                                     <SortableHeader label="Commercial" column="Commercial" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                                    <SortableHeader label="Relance" column="date_relance" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                                    <SortableHeader label="Dernier Contact" column="date_dernier_contact" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                                     <SortableHeader label="Origine" column="origine_contact" currentSort={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell className="px-5 py-8 text-center" colSpan={7}>Chargement...</TableCell>
+                                        <TableCell className="px-5 py-8 text-center" colSpan={9}>Chargement...</TableCell>
                                     </TableRow>
                                 ) : contacts.length === 0 ? (
                                     <TableRow>
-                                        <TableCell className="px-5 py-8 text-center" colSpan={7}>Aucun contact trouvé.</TableCell>
+                                        <TableCell className="px-5 py-8 text-center" colSpan={9}>Aucun contact trouvé.</TableCell>
                                     </TableRow>
                                 ) : (
                                     contacts.map((contact) => (
@@ -232,6 +256,12 @@ export default function ContactsTable() {
                                                 {contact.Commercial}
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {formatDate(contact.date_relance)}
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {formatDate(contact.date_dernier_contact)}
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                 {contact.origine_contact}
                                             </TableCell>
                                         </TableRow>
@@ -247,9 +277,7 @@ export default function ContactsTable() {
                 contact={selectedContact}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onUpdate={() => {
-                    fetchContacts(); // Refresh list after update
-                }}
+                onUpdate={fetchContacts}
             />
         </div>
     );

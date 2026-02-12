@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { authenticatedFetch } from "@/utils/api";
 
 interface Contact {
     id: number;
@@ -44,19 +45,29 @@ export default function ContactModal({ contact, isOpen, onClose, onUpdate }: Con
         const secondary = formData["Email Secondaire"] || "";
         const combinedEmail = [primary, secondary].filter(Boolean).join(", ");
 
-        const payload = { ...formData, Email: combinedEmail };
-        delete payload["Email Secondaire"];
+        const { "Email Secondaire": _, ...rest } = formData;
+        const payload = { ...rest, Email: combinedEmail };
 
         try {
-            await fetch(`http://localhost:8000/crm/contact/${formData.id}`, {
+            const response = await authenticatedFetch(`http://localhost:8000/crm/contact/${formData.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.detail || errorData.message || "Erreur inconnue";
+                alert(`Erreur lors de la mise à jour: ${message}`);
+                console.error("Update failed", response.status, errorData);
+                return; // Keep modal open
+            }
+
             onUpdate();
             onClose();
         } catch (error) {
             console.error("Error updating contact", error);
+            alert("Erreur technique ou réseau lors de la mise à jour.");
         } finally {
             setLoading(false);
         }
@@ -79,6 +90,8 @@ export default function ContactModal({ contact, isOpen, onClose, onUpdate }: Con
         { label: "Commercial", key: "Commercial" },
         { label: "Statut", key: "Statut" },
         { label: "Origine", key: "origine_contact" },
+        { label: "Dernier Contact", key: "date_dernier_contact", type: "date" },
+        { label: "Prochaine Relance", key: "date_relance", type: "date" },
     ];
 
     return (
@@ -100,7 +113,7 @@ export default function ContactModal({ contact, isOpen, onClose, onUpdate }: Con
                                 {field.label}
                             </label>
                             <input
-                                type="text"
+                                type={field.type || "text"}
                                 className="w-full px-3 py-2 border rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
                                 value={formData[field.key] || ""}
                                 onChange={(e) => handleChange(field.key, e.target.value)}

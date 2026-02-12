@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
+import { authenticatedFetch } from "@/utils/api";
+
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 type StatsData = {
@@ -20,7 +22,7 @@ export const DashboardStats = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:8000/crm/stats");
+                const response = await authenticatedFetch("http://localhost:8000/crm/stats");
                 const json = await response.json();
                 setData(json);
             } catch (error) {
