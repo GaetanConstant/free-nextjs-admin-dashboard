@@ -1,4 +1,4 @@
-import { Outfit } from 'next/font/google';
+import { Work_Sans } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import "flatpickr/dist/flatpickr.css";
@@ -6,8 +6,9 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { UserProvider } from '@/context/UserContext';
 
-const outfit = Outfit({
+const workSans = Work_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
+      <body className={`${workSans.className} dark:bg-gray-900`}>
         <ThemeProvider>
           <UserProvider>
             <SidebarProvider>{children}</SidebarProvider>
